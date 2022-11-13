@@ -3,7 +3,10 @@
 #ifdef _WIN32
     #include <winsock.h>
 #else
-    // UNIX includes
+    #include <arpa/inet.h>
+    #include <sys/socket.h>
+    #include <unistd.h>
+    #include <sys/time.h>
 #endif
 
 #include <stdio.h>
@@ -32,6 +35,7 @@ int CloseVGS(void)
     WSACleanup();
     return STATUS_SUCCESS;
 #endif
+    return STATUS_SUCCESS;
 }
 
 Socket StartupServer(int port, int backlog)
@@ -67,9 +71,13 @@ Socket StartupServer(int port, int backlog)
 
 Socket AcceptClient(Socket fd)
 {
+    #ifdef _WIN32
+        int c = sizeof(struct sockaddr_in);
+    #else
+        socklen_t c = sizeof(struct sockaddr_in);
+    #endif
     Socket new_socket;
     struct sockaddr_in client;
-    int c = sizeof(struct sockaddr_in);
 	new_socket = accept(fd , (struct sockaddr *)&client, &c);
 	if (new_socket == INVALID_SOCKET) {
 		return STATUS_ERROR;
@@ -105,7 +113,7 @@ int CloseSocket(Socket fd)
 #ifdef _WIN32
     closesocket(fd);
 #else
-    printf("Not Implemented!\n");
+    close(fd);
 #endif
 
     return STATUS_SUCCESS;
