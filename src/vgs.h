@@ -85,7 +85,7 @@ int SendData(Socket fd, const void *buf, int len);
  * @param buf 
  * @param len 
  * 
- * @return The number of bytes successfully read. Return STATUS_ERROR on failure.
+ * @return The number of bytes successfully received. Return STATUS_ERROR on failure.
  */
 int RecvData(Socket fd, void *buf, int len);
 
