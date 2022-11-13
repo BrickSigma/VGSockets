@@ -37,12 +37,12 @@ int CloseVGS(void);
  * @param port Port to bind to
  * @param backlog Number of connections to listen to
  * 
- * @return On sucess, the server socket descriptor is returned.
+ * @return On success, the server socket descriptor is returned.
  */
 Socket StartupServer(int port, int backlog);
 
 /**
- * @brief Accept any incomming connections from a client
+ * @brief Accept any incoming connections from a client
  * 
  * @param fd Server socket
  * 
@@ -73,17 +73,17 @@ int CloseSocket(Socket fd);
  * @param fd Socket descriptor
  * @param buf 
  * @param len 
- * @return The number of bytes succesfully sent. Return STATUS_ERROR on failure.
+ * @return The number of bytes successfully sent. Return STATUS_ERROR on failure.
  */
 int SendData(Socket fd, char *buf, int len);
 
 /**
- * @brief Read any incomming data and write to buf
+ * @brief Read any incoming data and write to buf
  * 
  * @param fd Socket descriptor
  * @param buf 
  * @param len 
- * @return The number of bytes succesfully read. Return STATUS_ERROR on failure.
+ * @return The number of bytes successfully read. Return STATUS_ERROR on failure.
  */
 int RecvData(Socket fd, char *buf, int len);
 
