@@ -73,9 +73,10 @@ int CloseSocket(Socket fd);
  * @param fd Socket descriptor
  * @param buf 
  * @param len 
+ * 
  * @return The number of bytes successfully sent. Return STATUS_ERROR on failure.
  */
-int SendData(Socket fd, char *buf, int len);
+int SendData(Socket fd, const void *buf, int len);
 
 /**
  * @brief Read any incoming data and write to buf
@@ -83,8 +84,9 @@ int SendData(Socket fd, char *buf, int len);
  * @param fd Socket descriptor
  * @param buf 
  * @param len 
+ * 
  * @return The number of bytes successfully read. Return STATUS_ERROR on failure.
  */
-int RecvData(Socket fd, char *buf, int len);
+int RecvData(Socket fd, void *buf, int len);
 
 #endif // VGS_H

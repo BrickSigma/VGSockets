@@ -110,3 +110,13 @@ int CloseSocket(Socket fd)
 
     return STATUS_SUCCESS;
 }
+
+int SendData(Socket fd, const void *buf, int len)
+{
+    return send(fd, (char *)buf, len, 0);
+}
+
+int RecvData(Socket fd, void *buf, int len)
+{
+    return recv(fd, (char *)buf, len, 0);
+}
