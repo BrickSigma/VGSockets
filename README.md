@@ -15,4 +15,4 @@ Video Game Sockets (aka VGSockets) is a sockets library currently being develope
 - Support on Mac has not been tested as of now, but will come soon.
 
 ## To-Do
-- Add error return codes for each function call.
+- [ ] Add error return codes for each function call.
