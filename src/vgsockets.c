@@ -10,8 +10,11 @@
 #endif
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+
+static void ShowError(const char *msg);
 
 int InitVGS(void)
 {
@@ -44,13 +47,15 @@ Socket StartupServer(int port, int backlog)
     struct sockaddr_in server;
 
 	if(fd == INVALID_SOCKET) {
+        ShowError("ERROR CREATING SERVER SOCKET");
 		return STATUS_ERROR;
 	}
 
     int opt = 1;
 	if (setsockopt(fd, SOL_SOCKET,
 				SO_REUSEADDR, 
-				(char *)&opt, sizeof(int))) {
+				(char *)&opt, sizeof(int)) < 0) {
+        ShowError("ERROR SETTING REUSEADDR");
 		return STATUS_ERROR;
 	}
 
@@ -59,10 +64,12 @@ Socket StartupServer(int port, int backlog)
 	server.sin_port = htons((unsigned short)port);
 
     if (bind(fd ,(struct sockaddr *)&server , sizeof(server)) < 0) {
-		return STATUS_ERROR;
+		ShowError("ERROR BINDING SOCKET");
+        return STATUS_ERROR;
 	}
 
     if (listen(fd , backlog) < 0) {
+        ShowError("ERROR LISTENING FOR CONNECTIONS");
         return STATUS_ERROR;
     }
 
@@ -80,6 +87,7 @@ Socket AcceptClient(Socket fd)
     struct sockaddr_in client;
 	new_socket = accept(fd , (struct sockaddr *)&client, &c);
 	if (new_socket == INVALID_SOCKET) {
+        ShowError("ERROR ACCEPTING CONNECTION");
 		return STATUS_ERROR;
 	}
 
@@ -92,6 +100,7 @@ Socket StartupClient(int port, char *address)
     struct sockaddr_in server;
 
     if((signed)fd < 0) {
+        ShowError("ERROR CREATING SERVER SOCKET");
 		return STATUS_ERROR;
 	}
 
@@ -102,6 +111,7 @@ Socket StartupClient(int port, char *address)
 	//Connect to remote server
 	if (connect(fd , (struct sockaddr *)&server , sizeof(server)) < 0)
 	{
+        ShowError("ERROR CONNECTING SERVER");
 		return STATUS_ERROR;
 	}
 
@@ -113,7 +123,9 @@ int CloseSocket(Socket fd)
 #ifdef _WIN32
     closesocket(fd);
 #else
-    close(fd);
+    if(close(fd)) {
+        ShowError("ERROR CLOSING SOCKET");
+    }
 #endif
 
     return STATUS_SUCCESS;
@@ -121,10 +133,32 @@ int CloseSocket(Socket fd)
 
 int SendData(Socket fd, const void *buf, int len)
 {
-    return send(fd, (char *)buf, len, 0);
+    int valsent = send(fd, (char *)buf, len, 0);
+    if (valsent < 0) {
+        ShowError("ERROR SENDING");
+        return STATUS_ERROR;
+    }
+    return valsent;
 }
 
 int RecvData(Socket fd, void *buf, int len)
 {
-    return recv(fd, (char *)buf, len, 0);
+    int valrecv = recv(fd, (char *)buf, len, 0);
+    if (valrecv < 0) {
+        ShowError("ERROR RECEIVING");
+        return STATUS_ERROR;
+    }
+    return valrecv;
+}
+
+static void ShowError(const char *msg)
+{
+    static char buff[1024];
+#ifdef _WIN32
+    // WIN32 error handle...
+    snprintf(buff, 1024, "UNIX::%s: ", msg);
+#else
+    snprintf(buff, 1024, "UNIX::%s: ", msg);
+    perror(buff);
+#endif
 }

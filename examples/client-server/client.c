@@ -8,7 +8,7 @@ int main(void)
     InitVGS();
 
     printf("Starting up client...\n");
-    Socket client = StartupClient(8080, "192.168.1.15");
+    Socket client = StartupClient(8080, "127.0.0.1");
     printf("Successfully connected to server!\n");
 
     printf("Sending data...\n");
