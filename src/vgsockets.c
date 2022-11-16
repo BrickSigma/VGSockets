@@ -1,7 +1,7 @@
 #include "vgs.h"
 
 #ifdef _WIN32
-    #include <winsock.h>
+    #include <WinSock2.h>
 #else
     #include <arpa/inet.h>
     #include <sys/socket.h>
@@ -20,7 +20,7 @@ int InitVGS(void)
 {
 #ifdef _WIN32
     WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2,2),&wsa) != 0)
+    if (WSAStartup(MAKEWORD(2,0),&wsa) != 0)
 	{
 		return STATUS_ERROR;
 	}
@@ -61,7 +61,7 @@ Socket StartupServer(int port, int backlog)
 
     server.sin_family = AF_INET;
 	server.sin_addr.s_addr = INADDR_ANY;
-	server.sin_port = htons((unsigned short)port);
+	server.sin_port = htons(port);
 
     if (bind(fd ,(struct sockaddr *)&server , sizeof(server)) < 0) {
 		ShowError("ERROR BINDING SOCKET");
@@ -99,7 +99,7 @@ Socket StartupClient(int port, char *address)
     Socket fd = socket(AF_INET , SOCK_STREAM , 0 );
     struct sockaddr_in server;
 
-    if((signed)fd < 0) {
+    if(fd == INVALID_SOCKET) {
         ShowError("ERROR CREATING SERVER SOCKET");
 		return STATUS_ERROR;
 	}
@@ -109,7 +109,7 @@ Socket StartupClient(int port, char *address)
 	server.sin_port = htons(port);
 
 	//Connect to remote server
-	if (connect(fd , (struct sockaddr *)&server , sizeof(server)) < 0)
+	if (connect(fd , (struct sockaddr *)&server , sizeof(server)) != 0)
 	{
         ShowError("ERROR CONNECTING SERVER");
 		return STATUS_ERROR;
@@ -153,12 +153,12 @@ int RecvData(Socket fd, void *buf, int len)
 
 static void ShowError(const char *msg)
 {
-    static char buff[1024];
 #ifdef _WIN32
     // WIN32 error handle...
-    snprintf(buff, 1024, "UNIX::%s: ", msg);
+    fprintf(stderr, "WIN32::%s: %d\n", msg, WSAGetLastError());
 #else
-    snprintf(buff, 1024, "UNIX::%s: ", msg);
+    static char buff[1024];
+    snprintf(buff, 1024, "UNIX::%s", msg);
     perror(buff);
 #endif
 }
