@@ -13,3 +13,6 @@ endif
 build: server.c client.c
 	$(CC) server.c -o server$(EXT) $(CFLAGS) $(LDFLAGS)
 	$(CC) client.c -o client$(EXT) $(CFLAGS) $(LDFLAGS)
+
+clean:
+	rm -f *$(EXT)
