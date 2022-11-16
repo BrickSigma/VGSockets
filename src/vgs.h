@@ -1,6 +1,10 @@
 #ifndef VGS_H
 #define VGS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef STATUS_ERROR
 #   define STATUS_ERROR (-1)
 #endif
@@ -88,5 +92,9 @@ int SendData(Socket fd, const void *buf, int len);
  * @return The number of bytes successfully received. Return STATUS_ERROR on failure.
  */
 int RecvData(Socket fd, void *buf, int len);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // VGS_H
