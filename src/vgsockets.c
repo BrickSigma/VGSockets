@@ -14,29 +14,35 @@
 #include <stdlib.h>
 #include <errno.h>
 
+// Used to disable/enable error messgaes.
+int ShowErrorsMsg = 0;
+
+/**
+ * @brief Output the error code/message from the last function call.
+ * 
+ * @param msg 
+ */
 static void ShowError(const char *msg);
 
 int InitVGS(void)
 {
 #ifdef _WIN32
     WSADATA wsa;
-    if (WSAStartup(MAKEWORD(2,0),&wsa) != 0)
+    if (WSAStartup(MAKEWORD(2,0), &wsa) != 0)
 	{
 		return STATUS_ERROR;
 	}
-
-    return STATUS_SUCCESS;
-
-#else
-    return STATUS_SUCCESS;
 #endif
+
+    return STATUS_SUCCESS;
 }
 
 int CloseVGS(void)
 {
 #ifdef _WIN32
-    WSACleanup();
-    return STATUS_SUCCESS;
+    if (WSACleanup() != 0) {
+        return STATUS_ERROR;
+    }
 #endif
     return STATUS_SUCCESS;
 }
@@ -48,7 +54,7 @@ Socket StartupServer(int port, int backlog)
 
 	if(fd == INVALID_SOCKET) {
         ShowError("ERROR CREATING SERVER SOCKET");
-		return STATUS_ERROR;
+		return INVALID_SOCKET;
 	}
 
     int opt = 1;
@@ -88,7 +94,7 @@ Socket AcceptClient(Socket fd)
 	new_socket = accept(fd , (struct sockaddr *)&client, &c);
 	if (new_socket == INVALID_SOCKET) {
         ShowError("ERROR ACCEPTING CONNECTION");
-		return STATUS_ERROR;
+		return INVALID_SOCKET;
 	}
 
     return new_socket;
@@ -101,7 +107,7 @@ Socket StartupClient(int port, char *address)
 
     if(fd == INVALID_SOCKET) {
         ShowError("ERROR CREATING SERVER SOCKET");
-		return STATUS_ERROR;
+		return INVALID_SOCKET;
 	}
 
     server.sin_addr.s_addr = inet_addr(address);
@@ -121,10 +127,14 @@ Socket StartupClient(int port, char *address)
 int CloseSocket(Socket fd)
 {
 #ifdef _WIN32
-    closesocket(fd);
+    if (closesocket(fd) != 0) {
+        ShowError("ERROR CLOSING SOCKET");
+        return STATUS_ERROR;
+    }
 #else
     if(close(fd)) {
         ShowError("ERROR CLOSING SOCKET");
+        return STATUS_ERROR;
     }
 #endif
 
@@ -144,21 +154,31 @@ int SendData(Socket fd, const void *buf, int len)
 int RecvData(Socket fd, void *buf, int len)
 {
     int valrecv = recv(fd, (char *)buf, len, 0);
-    if (valrecv < 0) {
+    if (valrecv <= 0) {
         ShowError("ERROR RECEIVING");
-        return STATUS_ERROR;
     }
     return valrecv;
 }
 
+void EnableErrorShow(void)
+{
+    ShowErrorsMsg = 1;
+}
+
+void DisableErrorShow(void)
+{
+    ShowErrorsMsg = 0;
+}
+
 static void ShowError(const char *msg)
 {
+    if (ShowErrorsMsg) {
 #ifdef _WIN32
-    // WIN32 error handle...
-    fprintf(stderr, "WIN32::%s: %d\n", msg, WSAGetLastError());
+        fprintf(stderr, "WIN32::%s: %d\n", msg, WSAGetLastError());
 #else
-    static char buff[1024];
-    snprintf(buff, 1024, "UNIX::%s", msg);
-    perror(buff);
+        static char buff[1024];
+        snprintf(buff, 1024, "UNIX::%s", msg);
+        perror(buff);
 #endif
+    }
 }

@@ -89,9 +89,21 @@ int SendData(Socket fd, const void *buf, int len);
  * @param buf 
  * @param len 
  * 
- * @return The number of bytes successfully received. Return STATUS_ERROR on failure.
+ * @return The number of bytes successfully received.
  */
 int RecvData(Socket fd, void *buf, int len);
+
+/**
+ * @brief Enable internal error messages.
+ * 
+ */
+void EnableErrorShow(void);
+
+/**
+ * @brief Disable internal error messages. This is set by default.
+ * 
+ */
+void DisableErrorShow(void);
 
 #ifdef __cplusplus
 }
