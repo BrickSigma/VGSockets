@@ -8,10 +8,13 @@ ifeq ($(OS), Windows_NT)
 	LDFLAGS += -lws2_32
 endif
 
-$(OUT) : vgsockets.o
-	$(AR) rcs $@ $^ $(LDFLAGS)
+$(OUT) : core.o select.o
+	$(AR) rcs $@ $^
 
-vgsockets.o : vgsockets.c
+core.o : core.c
+	$(CC) $^ -c -o $@ $(CFLAGS) $(LDFLAGS)
+
+select.o : select.c
 	$(CC) $^ -c -o $@ $(CFLAGS) $(LDFLAGS)
 
 clean:
