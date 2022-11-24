@@ -4,7 +4,7 @@
 
 int main(void)
 {
-    // Enable internal error messgaes
+    // Enable internal error messages
     EnableErrorShow();
 
     printf("Initializing VGS...\n");
