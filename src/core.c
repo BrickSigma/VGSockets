@@ -14,16 +14,6 @@
 
 #include "vgs.h"
 
-// Used to disable/enable error messages.
-int ShowErrorsMsg = 0;
-
-/**
- * @brief Output the error code/message from the last function call.
- * 
- * @param msg 
- */
-static void ShowError(const char *msg);
-
 int InitVGS(void)
 {
 #ifdef _WIN32
@@ -158,27 +148,4 @@ int RecvData(Socket fd, void *buf, int len)
         ShowError("ERROR RECEIVING");
     }
     return valrecv;
-}
-
-void EnableErrorShow(void)
-{
-    ShowErrorsMsg = 1;
-}
-
-void DisableErrorShow(void)
-{
-    ShowErrorsMsg = 0;
-}
-
-static void ShowError(const char *msg)
-{
-    if (ShowErrorsMsg) {
-#ifdef _WIN32
-        fprintf(stderr, "WIN32::%s: %d\n", msg, WSAGetLastError());
-#else
-        static char buff[1024];
-        snprintf(buff, 1024, "UNIX::%s", msg);
-        perror(buff);
-#endif
-    }
 }
