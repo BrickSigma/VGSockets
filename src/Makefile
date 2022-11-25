@@ -8,9 +8,12 @@ ifeq ($(OS), Windows_NT)
 	LDFLAGS += -lws2_32
 endif
 
-$(OUT) : core.o select.o
+$(OUT) : core.o error.o select.o
 	$(AR) rcs $@ $^
 
+error.o : error.c
+	$(CC) $^ -c -o $@ $(CFLAGS) $(LDFLAGS)
+	
 core.o : core.c
 	$(CC) $^ -c -o $@ $(CFLAGS) $(LDFLAGS)
 
