@@ -23,13 +23,40 @@ typedef unsigned long long Socket;
 
 
 // VGSocket related definitions
-#undef FD_SETSIZE
-#define FD_SETSIZE      (64)  // Maximum file descriptor set size
+#undef SETSIZE
 
+#ifdef _WIN32  // Windows set system
+
+    #define SETSIZE     (64)    // Maximum file descriptor set size
+
+    //Equivelent to fd_set type in WinSock.h and sys/socket.h
+    typedef struct __VGSet {
+        unsigned int fd_count;
+        Socket fd_array[SETSIZE];
+    } VGSet;
+#else  // UNIX set system
+    // Taken from sys/select.h
+    #define SETSIZE      (1024)  // Maximum file descriptor set size
+
+    #define	__NBBY	8
+    typedef unsigned int __mask;
+    #define __NFDBITS ((unsigned)(sizeof(__mask) * __NBBY))
+    #define	__howmany(x, y)	(((x) + ((y) - 1)) / (y))
+
+    //Equivelent to fd_set type in WinSock.h and sys/socket.h
+    typedef struct __VGSet {
+        __mask fds_bits[__howmany(SETSIZE, __NFDBITS)];
+    } VGSet;
+#endif
+
+/**
+ * @brief Contains the server/client socket descriptors along with a read file descriptor set.
+ * 
+ */
 typedef struct _VGSocket {
     Socket fd;
-    unsigned int fd_count;
-    Socket fd_array[FD_SETSIZE];
+    Socket max_fd;
+    VGSet set;
 } VGSocket;
 
 typedef struct _Timer {
@@ -123,49 +150,63 @@ void InitVGSocket(VGSocket *vgs);
 /**
  * @brief Equivalent to FD_CLR in WinSock.h and sys/select.h
  * 
- * @param fd 
- * @param vgs 
  */
-void ClearSet(Socket fd, VGSocket *vgs);
+void ClearSet(Socket fd, VGSet *set);
 
 /**
  * @brief Equivalent to FD_ISSET in WinSock.h and sys/select.h
  * 
- * @param fd 
- * @param vgs 
- * @return int 
  */
-int IsSet(Socket fd, VGSocket *vgs);
+int IsSet(Socket fd, VGSet *set);
 
 /**
  * @brief Equivalent to FD_SET in WinSock.h and sys/select.h
  * 
- * @param fd 
- * @param vgs 
  */
-void AddSet(Socket fd, VGSocket *vgs);
+void AddSet(Socket fd, VGSet *set);
 
 /**
  * @brief Equivalent to FD_ZERO in WinSock.h and sys/select.h
  * 
- * @param vgs 
  */
-void ZeroSet(VGSocket *vgs);
+void ZeroSet(VGSet *set);
+
+/**
+ * Equivalent to select in WinSock.h and sys/select.h
+ * 
+ * @note Unlike WinSock and UNIX select, the timeout variable is not changed and can be reused.
+ * 
+ */
+int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer *timer);
+
+/**
+ * @brief Combination of VGSelect and RecvData, allowing for Recv to timeout
+ * 
+ * @return The number of bytes received. Returns 0 on timeout and -1 on error
+ */
+int VGSRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer);
 
 
 // ============== ERROR MODULES ================
 
 /**
- * @brief Enable internal error messages.
+ * @brief Enable automatic internal error messages.
  * 
  */
 void EnableErrorShow(void);
 
 /**
- * @brief Disable internal error messages. This is set by default.
+ * @brief Disable automatic internal error messages. This is set by default.
  * 
  */
 void DisableErrorShow(void);
+
+/**
+ * @brief Output the error code/message from the last function call.
+ * 
+ * @param msg 
+ */
+void ShowError(const char *msg);
 
 #ifdef __cplusplus
 }
