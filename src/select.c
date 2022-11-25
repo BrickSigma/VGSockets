@@ -2,39 +2,82 @@
     #include <WinSock2.h>
 #else
     #include <sys/socket.h>
+    #include <sys/time.h>
 #endif
 
 #include "vgs.h"
 
-typedef unsigned int u_int;
+/**
+ * @brief Convert Timer type to timeval type
+ * 
+ * @param timeout 
+ * @return struct timeval 
+ */
+static struct timeval TimerVal(Timer timeout);
 
 void InitVGSocket(VGSocket *vgs)
 {
-    if (vgs->fd_count != 0) {
-        return;
+    FD_ZERO(&(vgs->set));
+    FD_SET(vgs->fd, &(vgs->set));
+    vgs->max_fd = vgs->fd;
+}
+
+void ClearSet(Socket fd, VGSet *set)
+{
+    FD_CLR(fd, set);
+}
+
+int IsSet(Socket fd, VGSet *set)
+{
+    return FD_ISSET(fd, set);
+}
+
+void AddSet(Socket fd, VGSet *set)
+{
+    FD_SET(fd, set);
+}
+
+void ZeroSet(VGSet *set)
+{
+    FD_ZERO(set);
+}
+
+int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer *timer)
+{
+    struct timeval *ptr;
+    if (timer != NULL) {
+        struct timeval timeout = TimerVal(*timer);
+        ptr = &timeout;
+    } else {
+        ptr = NULL;
     }
-    vgs->fd_count = 1;
-    vgs->fd_array[0] = vgs->fd;
+    return select(nfds, (fd_set *)readfds, (fd_set *)writefds, (fd_set *)exceptfds, ptr);
 }
 
-void ClearSet(Socket fd, VGSocket *vgs)
+int VGSRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer)
 {
-    do { 
-        u_int __i; 
-        for(__i = 0; __i < vgs->fd_count; __i++) { 
-            if (vgs->fd_array[__i] == fd) { 
-                while (__i < vgs->fd_count - 1) { 
-                    vgs->fd_array[__i] = vgs->fd_array[__i + 1]; 
-                    __i++; 
-                }
-                vgs->fd_count--; 
-                break; 
-            } 
-        } 
-    } while(0);
+    struct timeval *ptr;
+    if (timer != NULL) {
+        struct timeval timeout = TimerVal(*timer);
+        ptr = &timeout;
+    } else {
+        ptr = NULL;
+    }
+
+    int valrecv = 0;
+    if (select(vgs.max_fd+1, (fd_set *)&vgs.set, NULL, NULL, ptr)) {
+        if (IsSet(fd, &vgs.set)) {
+            valrecv = recv(fd, (char *)buf, len, 0);
+            if (valrecv <= 0) {
+                ShowError("ERROR RECEIVING");
+            }   
+        }
+    }
+
+    return valrecv;
 }
 
-int IsSet(Socket fd, VGSocket *vgs)
+static struct timeval TimerVal(Timer timeout)
 {
-    fd_set readfds;
+    return (struct timeval){.tv_sec=timeout.sec, .tv_usec=((timeout.msec*1000) + timeout.usec)};
 }
