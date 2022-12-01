@@ -38,14 +38,11 @@ typedef unsigned long long Socket;
     // Taken from sys/select.h
     #define SETSIZE      (1024)  // Maximum file descriptor set size
 
-    #define	__NBBY	8
-    typedef unsigned int __mask;
-    #define __NFDBITS ((unsigned)(sizeof(__mask) * __NBBY))
     #define	__howmany(x, y)	(((x) + ((y) - 1)) / (y))
 
     //Equivelent to fd_set type in WinSock.h and sys/socket.h
     typedef struct __VGSet {
-        __mask __fds_bits[__howmany(SETSIZE, __NFDBITS)];
+        __mask __fds_bits[__howmany(SETSIZE, (8 * (int) sizeof(unsigned int)))];
     } VGSet;
 #endif
 
