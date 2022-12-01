@@ -45,7 +45,7 @@ typedef unsigned long long Socket;
 
     //Equivelent to fd_set type in WinSock.h and sys/socket.h
     typedef struct __VGSet {
-        __mask fds_bits[__howmany(SETSIZE, __NFDBITS)];
+        __mask __fds_bits[__howmany(SETSIZE, __NFDBITS)];
     } VGSet;
 #endif
 

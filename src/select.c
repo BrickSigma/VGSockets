@@ -3,6 +3,7 @@
 #else
     #include <sys/socket.h>
     #include <sys/time.h>
+    #include <stddef.h>
 #endif
 
 #include "vgs.h"
@@ -17,29 +18,29 @@ static struct timeval TimerVal(Timer timeout);
 
 void InitVGSocket(VGSocket *vgs)
 {
-    FD_ZERO(&(vgs->set));
-    FD_SET(vgs->fd, &(vgs->set));
+    FD_ZERO((fd_set *)&(vgs->set));
+    FD_SET(vgs->fd, (fd_set *)&(vgs->set));
     vgs->max_fd = vgs->fd;
 }
 
 void ClearSet(Socket fd, VGSet *set)
 {
-    FD_CLR(fd, set);
+    FD_CLR(fd, (fd_set *)set);
 }
 
 int IsSet(Socket fd, VGSet *set)
 {
-    return FD_ISSET(fd, set);
+    return FD_ISSET(fd, (fd_set *)set);
 }
 
 void AddSet(Socket fd, VGSet *set)
 {
-    FD_SET(fd, set);
+    FD_SET(fd, (fd_set *)set);
 }
 
 void ZeroSet(VGSet *set)
 {
-    FD_ZERO(set);
+    FD_ZERO((fd_set *)set);
 }
 
 int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer *timer)
