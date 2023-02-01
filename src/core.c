@@ -59,7 +59,7 @@ Socket StartupServer(int port, int backlog)
 	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_port = htons(port);
 
-    if (bind(fd ,(struct sockaddr *)&server , sizeof(server)) < 0) {
+    if (bind(fd ,(struct sockaddr *)&server, sizeof(server)) < 0) {
 		ShowError("ERROR BINDING SOCKET");
         return STATUS_ERROR;
 	}
@@ -74,11 +74,11 @@ Socket StartupServer(int port, int backlog)
 
 Socket AcceptClient(Socket fd)
 {
-    #ifdef _WIN32
-        int c = sizeof(struct sockaddr_in);
-    #else
-        socklen_t c = sizeof(struct sockaddr_in);
-    #endif
+#ifdef _WIN32
+    int c = sizeof(struct sockaddr_in);
+#else
+    socklen_t c = sizeof(struct sockaddr_in);
+#endif
     Socket new_socket;
     struct sockaddr_in client;
 	new_socket = accept(fd , (struct sockaddr *)&client, &c);

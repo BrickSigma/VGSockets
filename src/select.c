@@ -9,7 +9,7 @@
 #include "vgs.h"
 
 /**
- * @brief Convert Timer type to timeval type
+ * @brief Convert VGSocket Timer type to timeval data type for UNIX/Win32 functions
  * 
  * @param timeout 
  * @return struct timeval 
@@ -46,8 +46,8 @@ void ZeroSet(VGSet *set)
 int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer *timer)
 {
     struct timeval *ptr;
+    struct timeval timeout = TimerVal(*timer);
     if (timer != NULL) {
-        struct timeval timeout = TimerVal(*timer);
         ptr = &timeout;
     } else {
         ptr = NULL;
@@ -55,11 +55,12 @@ int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer 
     return select(nfds, (fd_set *)readfds, (fd_set *)writefds, (fd_set *)exceptfds, ptr);
 }
 
-int VGSRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer)
+int TimedRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer)
 {
+    // Set the timeout value for UNIX/Win32 functions
     struct timeval *ptr;
+    struct timeval timeout = TimerVal(*timer);
     if (timer != NULL) {
-        struct timeval timeout = TimerVal(*timer);
         ptr = &timeout;
     } else {
         ptr = NULL;
@@ -69,7 +70,7 @@ int VGSRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer)
     if (select(vgs.max_fd+1, (fd_set *)&vgs.set, NULL, NULL, ptr)) {
         if (IsSet(fd, &vgs.set)) {
             valrecv = recv(fd, (char *)buf, len, 0);
-            if (valrecv <= 0) {
+            if (valrecv < 0) {
                 ShowError("ERROR RECEIVING");
             }   
         }

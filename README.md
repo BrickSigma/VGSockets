@@ -22,7 +22,7 @@
 - Error checking system to ensure data is transmitted correctly and not cut off.
 
 ## Limitations
-- Currently being designed to work with TCP connections only.
+- Only TCP connections have been implemented, but UDP will be added
 - The library has not been tested on MacOS, so support is undetermined at the moment.
 
 ## Simple client-server example
