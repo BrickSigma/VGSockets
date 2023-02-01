@@ -22,7 +22,7 @@ typedef unsigned long long Socket;
 #define INVALID_SOCKET      (Socket)(~0)    // Invalid socket return code
 
 
-// VGSocket related definitions
+// OS specific fd_set struct defined
 #undef SETSIZE
 
 #ifdef _WIN32  // Windows set system
@@ -64,7 +64,7 @@ typedef struct _Timer {
 } Timer;
 
 
-// ============== CORE MODULES ================
+// ============== CORE FUNCTIONS ================
 
 /**
  * @brief Initialize the library.
@@ -137,7 +137,7 @@ int SendData(Socket fd, const void *buf, int len);
 int RecvData(Socket fd, void *buf, int len);
 
 
-// ============== SELECT/FD_SET MODULES ================
+// ============== SELECT/FD_SET FUNCTIONS ================
 
 /**
  * @brief Initialise VGSocket file descriptor set. This should be called after StartupServer
@@ -182,10 +182,10 @@ int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer 
  * 
  * @return The number of bytes received. Returns 0 on timeout and -1 on error
  */
-int VGSRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer);
+int TimedRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer);
 
 
-// ============== ERROR MODULES ================
+// ============== ERROR FUNCTIONS ================
 
 /**
  * @brief Enable automatic internal error messages.
