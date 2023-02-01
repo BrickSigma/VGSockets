@@ -19,11 +19,11 @@
 
 ## Future features
 - Custom sockets designed for use in continuously looping code. This type of socket will appropriately be called a `VGSocket`.
-- Error checking system to ensure data is transmitted correctly and not cut off.
+- Error checking system to prevent data from being malformed and offset when transmitted/recieved continuously.
 
 ## Limitations
-- Only TCP connections have been implemented, but UDP will be added
-- The library has not been tested on MacOS, so support is undetermined at the moment.
+- Only TCP connections have been implemented as of now, but UDP will be added.
+- This library has not been tested on MacOS, so support is undetermined at the moment.
 
 ## Simple client-server example
 <b>All examples are in the `examples` folder</b>  
@@ -57,7 +57,7 @@ int main(void)
     if (valread <= 0) {
         return -1;
     }
-    printf("Data received: %s. Number of bytes received: %d\n", buff, valread);
+    printf("Data received: %s. \nNumber of bytes received: %d\n", buff, valread);
 
     printf("Sending data...\n");
     int valsend = SendData(new_socket, "Hello client!", 14);
@@ -95,7 +95,7 @@ int main(void)
     if (valsent < 0) {
         return -1;
     }
-    printf("Data sent! Number of bytes sent: %d\n", valsent);
+    printf("Data sent! \nNumber of bytes sent: %d\n", valsent);
 
     char buff[256];
     printf("Waiting for server...\n");
@@ -151,8 +151,10 @@ build:
 
 ## To-Do
 :white_check_mark: Add error return codes for each function call.  
- :white_check_mark: Add option to turn on/off error messages.
- - [ ] Add `select` function variant.
- - [ ] Add custom VGSocket datatype to allow high speed sending.
- - [ ] Add error checking protocol to prevent TCP stream receiving extra data.  
- 
+:white_check_mark: Add option to turn on/off error messages.
+:white_check_mark: Add `select` function variant.
+:white_check_mark: Add custom VGSocket datatype to allow Recv to timeout.
+- [ ] Add error checking protocol to prevent TCP stream receiving next packet of data when session closed.  
+- [ ] Add global error values for user reference.  
+- [ ] Add UDP support.
+- [ ] Create documentation/cheetsheet for functions and structures.
