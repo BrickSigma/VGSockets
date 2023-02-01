@@ -1,6 +1,6 @@
 CC := gcc
 AR := ar
-CFLAGS := -Wall -Wextra
+CFLAGS := -Wall -Wextra -static
 LDFLAGS := 
 OUT := libvgs.a
 
