@@ -4,6 +4,9 @@
 
 int main(void)
 {
+    // Enable internal error messages
+    EnableErrorShow();
+
     printf("Initializing VGS...\n");
     InitVGS();
     
@@ -27,7 +30,7 @@ int main(void)
     if (valread < 0) {
         return -1;
     }
-    printf("Data received: %s. Number of bytes received: %d\n", buff, valread);
+    printf("Data received: %s \nNumber of bytes received: %d\n", buff, valread);
 
     printf("Sending data...\n");
     int valsend = SendData(new_socket, "Hello client!", 14);

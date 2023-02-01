@@ -30,7 +30,7 @@ int main(void)
     if (valread <= 0) {
         return -1;
     }
-    printf("Data received: %s. Number of bytes received: %d\n", buff, valread);
+    printf("Data received: %s. \nNumber of bytes received: %d\n", buff, valread);
 
     printf("Closing client and VGS...\n");
     CloseSocket(client);
