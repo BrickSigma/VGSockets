@@ -31,8 +31,8 @@ ifeq ($(shell id -u), 0)
 ifeq ($(OS), Windows_NT)
 	@echo "Not yet implemented for Windows"
 else
-	cp $(LIBNAME).a $(LIBPATH)
-	cp $(HEADERNAME).h $(HEADERPATH)
+	@cp $(LIBNAME).a $(LIBPATH)
+	@cp $(HEADERNAME).h $(HEADERPATH)
 endif
 else
 	@echo "You need super user priviliges to install"
@@ -43,8 +43,9 @@ ifeq ($(shell id -u), 0)
 ifeq ($(OS), Windows_NT)
 	@echo "Not yet implemented for Windows"
 else
-	rm -f $(LIBPATH)/$(LIBNAME).a
-	rm -f $(HEADERPATH)/$(HEADERNAME).h
+	@echo "Removing $(LIBPATH)/$(LIBNAME).a and $(HEADERPATH)/$(HEADERNAME).h"
+	@rm -f $(LIBPATH)/$(LIBNAME).a
+	@rm -f $(HEADERPATH)/$(HEADERNAME).h
 endif
 else
 	@echo "You need super user priviliges to install"
