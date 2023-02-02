@@ -149,6 +149,8 @@ build:
 	$(CC) $(SRC)client.c -o client$(EXT) $(INCLUDE) $(LDFLAGS)
 ```
 
+Use `-lvgs` to link the library, and make sure on Windows to link WinSock32 by adding `-lws2_32` to your linker flags.
+
 ## To-Do
 :white_check_mark: Add error return codes for each function call.  
 :white_check_mark: Add option to turn on/off error messages.
