@@ -5,23 +5,66 @@
 extern "C" {
 #endif
 
-#ifndef STATUS_ERROR
-#   define STATUS_ERROR (-1)
-#endif
-
-#ifndef STATUS_SUCCESS
-#   define STATUS_SUCCESS (0)
-#endif
-
 /**
  * @brief Socket descriptor
  * 
  */
 typedef unsigned long long Socket;
 
-#ifndef INVALID_SOCKET
-#   define INVALID_SOCKET (Socket)(~0)
+
+// Return codes
+#undef STATUS_ERROR
+#undef STATUS_SUCCESS
+#undef INVALID_SOCKET
+
+#define STATUS_ERROR        (-1)            // Error return code
+#define STATUS_SUCCESS      (0)             // Success return code
+#define INVALID_SOCKET      (Socket)(~0)    // Invalid socket return code
+
+
+// OS specific fd_set struct defined
+#undef SETSIZE
+
+#ifdef _WIN32  // Windows set system
+
+    #define SETSIZE     (64)    // Maximum file descriptor set size
+
+    //Equivelent to fd_set type in WinSock.h and sys/socket.h
+    typedef struct __VGSet {
+        unsigned int fd_count;
+        Socket fd_array[SETSIZE];
+    } VGSet;
+#else  // UNIX set system
+    // Taken from sys/select.h
+    #define SETSIZE      (1024)  // Maximum file descriptor set size
+
+    typedef unsigned int __mask;
+    #define	__howmany(x, y)	(((x) + ((y) - 1)) / (y))
+
+    //Equivelent to fd_set type in WinSock.h and sys/socket.h
+    typedef struct __VGSet {
+        __mask __fds_bits[__howmany(SETSIZE, (8 * (unsigned) sizeof(__mask)))];
+    } VGSet;
 #endif
+
+/**
+ * @brief Contains the server/client socket descriptors along with a read file descriptor set.
+ * 
+ */
+typedef struct _VGSocket {
+    Socket fd;
+    Socket max_fd;
+    VGSet set;
+} VGSocket;
+
+typedef struct _Timer {
+    long sec;
+    long msec;
+    long usec;
+} Timer;
+
+
+// ============== CORE FUNCTIONS ================
 
 /**
  * @brief Initialize the library.
@@ -93,17 +136,75 @@ int SendData(Socket fd, const void *buf, int len);
  */
 int RecvData(Socket fd, void *buf, int len);
 
+
+// ============== SELECT/FD_SET FUNCTIONS ================
+
 /**
- * @brief Enable internal error messages.
+ * @brief Initialise VGSocket file descriptor set. This should be called after StartupServer
+ * 
+ */
+void InitVGSocket(VGSocket *vgs);
+
+/**
+ * @brief Equivalent to FD_CLR in WinSock.h and sys/select.h
+ * 
+ */
+void ClearSet(Socket fd, VGSet *set);
+
+/**
+ * @brief Equivalent to FD_ISSET in WinSock.h and sys/select.h
+ * 
+ */
+int IsSet(Socket fd, VGSet *set);
+
+/**
+ * @brief Equivalent to FD_SET in WinSock.h and sys/select.h
+ * 
+ */
+void AddSet(Socket fd, VGSet *set);
+
+/**
+ * @brief Equivalent to FD_ZERO in WinSock.h and sys/select.h
+ * 
+ */
+void ZeroSet(VGSet *set);
+
+/**
+ * Equivalent to select in WinSock.h and sys/select.h
+ * 
+ * @note Unlike WinSock and UNIX select, the timeout variable is not changed and can be reused.
+ * 
+ */
+int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer *timer);
+
+/**
+ * @brief Combination of VGSelect and RecvData, allowing for Recv to timeout
+ * 
+ * @return The number of bytes received. Returns 0 on timeout and -1 on error
+ */
+int TimedRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer);
+
+
+// ============== ERROR FUNCTIONS ================
+
+/**
+ * @brief Enable automatic internal error messages.
  * 
  */
 void EnableErrorShow(void);
 
 /**
- * @brief Disable internal error messages. This is set by default.
+ * @brief Disable automatic internal error messages. This is set by default.
  * 
  */
 void DisableErrorShow(void);
+
+/**
+ * @brief Output the error code/message from the last function call.
+ * 
+ * @param msg 
+ */
+void ShowError(const char *msg);
 
 #ifdef __cplusplus
 }

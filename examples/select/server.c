@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <unistd.h>
 
 #include "../../src/vgs.h"
 
@@ -30,8 +31,10 @@ int main(void)
     if (valread < 0) {
         return -1;
     }
-    printf("Data received: %s \nNumber of bytes received: %d\n", buff, valread);
+    printf("Data received: %s. \nNumber of bytes received: %d\n", buff, valread);
 
+    printf("Delaying for 5 seconds...\n");
+    sleep(5);
     printf("Sending data...\n");
     int valsend = SendData(new_socket, "Hello client!", 14);
     if (valsend <= 0) {

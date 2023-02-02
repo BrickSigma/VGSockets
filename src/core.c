@@ -1,4 +1,7 @@
-#include "vgs.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #ifdef _WIN32
     #include <WinSock2.h>
@@ -9,20 +12,7 @@
     #include <sys/time.h>
 #endif
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-
-// Used to disable/enable error messgaes.
-int ShowErrorsMsg = 0;
-
-/**
- * @brief Output the error code/message from the last function call.
- * 
- * @param msg 
- */
-static void ShowError(const char *msg);
+#include "vgs.h"
 
 int InitVGS(void)
 {
@@ -69,7 +59,7 @@ Socket StartupServer(int port, int backlog)
 	server.sin_addr.s_addr = INADDR_ANY;
 	server.sin_port = htons(port);
 
-    if (bind(fd ,(struct sockaddr *)&server , sizeof(server)) < 0) {
+    if (bind(fd ,(struct sockaddr *)&server, sizeof(server)) < 0) {
 		ShowError("ERROR BINDING SOCKET");
         return STATUS_ERROR;
 	}
@@ -84,11 +74,11 @@ Socket StartupServer(int port, int backlog)
 
 Socket AcceptClient(Socket fd)
 {
-    #ifdef _WIN32
-        int c = sizeof(struct sockaddr_in);
-    #else
-        socklen_t c = sizeof(struct sockaddr_in);
-    #endif
+#ifdef _WIN32
+    int c = sizeof(struct sockaddr_in);
+#else
+    socklen_t c = sizeof(struct sockaddr_in);
+#endif
     Socket new_socket;
     struct sockaddr_in client;
 	new_socket = accept(fd , (struct sockaddr *)&client, &c);
@@ -158,27 +148,4 @@ int RecvData(Socket fd, void *buf, int len)
         ShowError("ERROR RECEIVING");
     }
     return valrecv;
-}
-
-void EnableErrorShow(void)
-{
-    ShowErrorsMsg = 1;
-}
-
-void DisableErrorShow(void)
-{
-    ShowErrorsMsg = 0;
-}
-
-static void ShowError(const char *msg)
-{
-    if (ShowErrorsMsg) {
-#ifdef _WIN32
-        fprintf(stderr, "WIN32::%s: %d\n", msg, WSAGetLastError());
-#else
-        static char buff[1024];
-        snprintf(buff, 1024, "UNIX::%s", msg);
-        perror(buff);
-#endif
-    }
 }
