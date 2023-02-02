@@ -151,6 +151,8 @@ build:
 
 Use `-lvgs` to link the library, and make sure on Windows to link WinSock32 by adding `-lws2_32` to your linker flags.
 
+<b>Note: </b>if you are on Linux you can run `sudo make install` to add the library and header globally. To uninstall run `sudo make uninstall`.
+
 ## To-Do
 :white_check_mark: Add error return codes for each function call.  
 :white_check_mark: Add option to turn on/off error messages.
