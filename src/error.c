@@ -8,7 +8,7 @@
 #include <errno.h>
 
 // Used to disable/enable error messages.
-int ShowErrorsMsg = 0;
+int ShowErrorsMsg = 1;
 
 void EnableErrorShow(void)
 {
