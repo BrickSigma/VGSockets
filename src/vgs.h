@@ -140,7 +140,7 @@ int RecvData(Socket fd, void *buf, int len);
 // ============== SELECT/FD_SET FUNCTIONS ================
 
 /**
- * @brief Initialise VGSocket file descriptor set. This should be called after StartupServer
+ * @brief Initialise VGSocket file descriptor set. This should be called after StartupServer or StartupClient
  * 
  */
 void InitVGSocket(VGSocket *vgs);
