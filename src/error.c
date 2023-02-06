@@ -1,4 +1,4 @@
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
     #include <winsock2.h>
 #endif
 
@@ -23,7 +23,7 @@ void DisableErrorShow(void)
 void ShowError(const char *msg)
 {
     if (ShowErrorsMsg) {
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
         fprintf(stderr, "WIN32::%s: %d\n", msg, WSAGetLastError());
 #else
         static char buff[1024];

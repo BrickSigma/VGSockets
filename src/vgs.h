@@ -25,7 +25,7 @@ typedef unsigned long long Socket;
 // OS specific fd_set struct defined
 #undef SETSIZE
 
-#ifdef _WIN32  // Windows set system
+#if defined _WIN32 || defined __CYGWIN__  // Windows set system
 
     #define SETSIZE     (64)    // Maximum file descriptor set size
 

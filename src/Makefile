@@ -10,10 +10,6 @@ OUT := $(LIBNAME)
 HEADERPATH := /usr/local/include
 LIBPATH := /usr/local/lib
 
-ifeq ($(OS), Windows_NT)
-	LDFLAGS += -lws2_32
-endif
-
 $(OUT).a : core.o error.o select.o
 	$(AR) rcs $@ $^
 

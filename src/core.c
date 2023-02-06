@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
     #include <winsock2.h>
 #else
     #include <arpa/inet.h>
@@ -16,7 +16,7 @@
 
 int InitVGS(void)
 {
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
     WSADATA wsa;
     if (WSAStartup(MAKEWORD(2,0), &wsa) != 0)
 	{
@@ -29,7 +29,7 @@ int InitVGS(void)
 
 int CloseVGS(void)
 {
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
     if (WSACleanup() != 0) {
         return STATUS_ERROR;
     }
@@ -74,7 +74,7 @@ Socket StartupServer(int port, int backlog)
 
 Socket AcceptClient(Socket fd)
 {
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
     int c = sizeof(struct sockaddr_in);
 #else
     socklen_t c = sizeof(struct sockaddr_in);
@@ -116,7 +116,7 @@ Socket StartupClient(int port, char *address)
 
 int CloseSocket(Socket fd)
 {
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
     if (closesocket(fd) != 0) {
         ShowError("ERROR CLOSING SOCKET");
         return STATUS_ERROR;
