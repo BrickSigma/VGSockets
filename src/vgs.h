@@ -38,12 +38,21 @@ typedef struct __Pollfd {
 #undef POLLHUP
 #undef POLLNVAL
 
-#define POLLIN 0x001  // There is data to read.
-#define POLLPRI 0x002  // There is urgent data to read.
-#define POLLOUT 0x004  // Writing now will not block.
-#define POLLERR 0x008  // Error condition.
-#define POLLHUP 0x010  // Hung up.
-#define POLLNVAL 0x020  // Invalid polling request.
+#if defined _WIN32 || defined __CYGWIN__
+    #define POLLIN (0x0100 | 0x0200)  // There is data to read.
+    #define POLLPRI (0x0400)  // There is urgent data to read.
+    #define POLLOUT (0x0010)  // Writing now will not block.
+    #define POLLERR (0x0001)  // Error condition.
+    #define POLLHUP (0x0002)  // Hung up.
+    #define POLLNVAL (0x0004)  // Invalid polling request.
+#else
+    #define POLLIN (0x001)  // There is data to read.
+    #define POLLPRI (0x002)  // There is urgent data to read.
+    #define POLLOUT (0x004)  // Writing now will not block.
+    #define POLLERR (0x008)  // Error condition.
+    #define POLLHUP (0x010)  // Hung up.
+    #define POLLNVAL (0x020)  // Invalid polling request.
+#endif
 
 
 // ============== CORE FUNCTIONS ================
