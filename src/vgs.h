@@ -22,46 +22,28 @@ typedef unsigned long long Socket;
 #define INVALID_SOCKET      (Socket)(~0)    // Invalid socket return code
 
 
-// OS specific fd_set struct defined
-#undef SETSIZE
+// STRUCTURES/MACROS/TYPEDEFS FOR POLL-BASED FUNCTIONS
 
-#if defined _WIN32 || defined __CYGWIN__  // Windows set system
+// Equivilent to pollfd on UNIX and Win32 API
+typedef struct __Pollfd {
+    Socket fd;      // File descriptor
+    short events;   // Requested events
+    short revents;  // Returned events
+} Pollfd;
 
-    #define SETSIZE     (64)    // Maximum file descriptor set size
+#undef POLLIN
+#undef POLLPRI
+#undef POLLOUT
+#undef POLLERR
+#undef POLLHUP
+#undef POLLNVAL
 
-    //Equivelent to fd_set type in WinSock.h and sys/socket.h
-    typedef struct __VGSet {
-        unsigned int fd_count;
-        Socket fd_array[SETSIZE];
-    } VGSet;
-#else  // UNIX set system
-    // Taken from sys/select.h
-    #define SETSIZE      (1024)  // Maximum file descriptor set size
-
-    typedef unsigned int __mask;
-    #define	__howmany(x, y)	(((x) + ((y) - 1)) / (y))
-
-    //Equivelent to fd_set type in WinSock.h and sys/socket.h
-    typedef struct __VGSet {
-        __mask __fds_bits[__howmany(SETSIZE, (8 * (unsigned) sizeof(__mask)))];
-    } VGSet;
-#endif
-
-/**
- * @brief Contains the server/client socket descriptors along with a read file descriptor set.
- * 
- */
-typedef struct _VGSocket {
-    Socket fd;
-    Socket max_fd;
-    VGSet set;
-} VGSocket;
-
-typedef struct _Timer {
-    long sec;
-    long msec;
-    long usec;
-} Timer;
+#define POLLIN 0x001  // There is data to read.
+#define POLLPRI 0x002  // There is urgent data to read.
+#define POLLOUT 0x004  // Writing now will not block.
+#define POLLERR 0x008  // Error condition.
+#define POLLHUP 0x010  // Hung up.
+#define POLLNVAL 0x020  // Invalid polling request.
 
 
 // ============== CORE FUNCTIONS ================
@@ -84,7 +66,7 @@ int CloseVGS(void);
  * @param port Port to bind to
  * @param backlog Number of connections to listen to
  * 
- * @return On success, the server socket descriptor is returned.
+ * @return On success, the server socket descriptor is returned. On failure, INVALID_SOCKET is returned.
  */
 Socket StartupServer(int port, int backlog);
 
@@ -93,7 +75,7 @@ Socket StartupServer(int port, int backlog);
  * 
  * @param fd Server socket
  * 
- * @return Socket descriptor of the new socket connected 
+ * @return Socket descriptor of the new socket connected. On failure, INVALID_SOCKET is returned.
  */
 Socket AcceptClient(Socket fd);
 
@@ -103,7 +85,7 @@ Socket AcceptClient(Socket fd);
  * @param port Port to connect to
  * @param address IPv4 address of server
  * 
- * @return Socket descriptor
+ * @return Socket descriptor. On failure, INVALID_SOCKET is returned.
  */
 Socket StartupClient(int port, char *address);
 
@@ -121,7 +103,7 @@ int CloseSocket(Socket fd);
  * @param buf 
  * @param len 
  * 
- * @return The number of bytes successfully sent. Return STATUS_ERROR on failure.
+ * @return The number of bytes successfully sent. Returns STATUS_ERROR on failure.
  */
 int SendData(Socket fd, const void *buf, int len);
 
@@ -137,52 +119,28 @@ int SendData(Socket fd, const void *buf, int len);
 int RecvData(Socket fd, void *buf, int len);
 
 
-// ============== SELECT/FD_SET FUNCTIONS ================
+// ============== POLL/TIMEOUT FUNCTIONS ================
 
 /**
- * @brief Initialise VGSocket file descriptor set. This should be called after StartupServer or StartupClient
+ * @brief  Exactly the same as poll on UNIX and Win32 API
  * 
+ * @param  fds Array of poll file descriptors 
+ * @param  nfds Size of the array
+ * @param  timeout Timeout in milliseconds.
+ * @return The number of file descriptors who have an updated event. Returns -1 on error and errno is set. 
  */
-void InitVGSocket(VGSocket *vgs);
+int Poll(Pollfd *fds, unsigned long nfds, int timeout);
 
 /**
- * @brief Equivalent to FD_CLR in WinSock.h and sys/select.h
+ * @brief  Adds a timeout to receiving data. Similar to using select/poll.
  * 
+ * @param  fd: Socket descriptor
+ * @param  buf: Pointer to destination buffer
+ * @param  len: Length of buffer
+ * @param  timeout: Amount of time to delay in milliseconds. If -1 is equal to RecvData. If 0 it will immediately timeout.
+ * @retval Number of bytes received on success. Returns 0 is timed out. Returns -1 if an error occured.
  */
-void ClearSet(Socket fd, VGSet *set);
-
-/**
- * @brief Equivalent to FD_ISSET in WinSock.h and sys/select.h
- * 
- */
-int IsSet(Socket fd, VGSet *set);
-
-/**
- * @brief Equivalent to FD_SET in WinSock.h and sys/select.h
- * 
- */
-void AddSet(Socket fd, VGSet *set);
-
-/**
- * @brief Equivalent to FD_ZERO in WinSock.h and sys/select.h
- * 
- */
-void ZeroSet(VGSet *set);
-
-/**
- * Equivalent to select in WinSock.h and sys/select.h
- * 
- * @note Unlike WinSock and UNIX select, the timeout variable is not changed and can be reused.
- * 
- */
-int VGSelect(int nfds, VGSet *readfds, VGSet *writefds, VGSet *exceptfds, Timer *timer);
-
-/**
- * @brief Combination of VGSelect and RecvData, allowing for Recv to timeout
- * 
- * @return The number of bytes received. Returns 0 on timeout and -1 on error
- */
-int TimedRecv(VGSocket vgs, Socket fd, void *buf, int len, Timer *timer);
+int TimedRecv(Socket fd, void *buf, int len, int timeout);
 
 
 // ============== ERROR FUNCTIONS ================
