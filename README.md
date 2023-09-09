@@ -155,11 +155,11 @@ Use `-lvgs` to link the library, and make sure on Windows to link WinSock32 by a
 
 ## To-Do
 :white_check_mark: Add error return codes for each function call.  
-:white_check_mark: Add option to turn on/off error messages.
-:white_check_mark: Add ~~select~~ `poll` function variant.
-:white_check_mark: Add timeout based recv function.
-:white_check_mark: ~~Add custom VGSocket datatype to allow Recv to timeout.~~ (Removed)
+:white_check_mark: Add option to turn on/off error messages.  
+:white_check_mark: Add ~~select~~ `poll` function variant.  
+:white_check_mark: Add timeout based recv function.  
+:white_check_mark: ~~Add custom VGSocket datatype to allow Recv to timeout.~~ (Removed)  
 - [ ] Add global error values for user reference.  
-- [ ] Add UDP support.
+- [ ] Add UDP support.  
 - [ ] Add support for threads.  
-- [ ] Create documentation/cheetsheet for functions and structures.
+- [ ] Create documentation/cheetsheet for functions and structures.  
