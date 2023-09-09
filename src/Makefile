@@ -10,7 +10,7 @@ OUT := $(LIBNAME)
 HEADERPATH := /usr/local/include
 LIBPATH := /usr/local/lib
 
-$(OUT).a : core.o error.o select.o
+$(OUT).a : core.o error.o poll.o
 	$(AR) rcs $@ $^
 
 error.o : error.c
@@ -19,7 +19,7 @@ error.o : error.c
 core.o : core.c
 	$(CC) $^ -c -o $@ $(CFLAGS) $(LDFLAGS)
 
-select.o : select.c
+poll.o : poll.c
 	$(CC) $^ -c -o $@ $(CFLAGS) $(LDFLAGS)
 
 install:
@@ -47,6 +47,7 @@ else
 	@echo "You need super user priviliges to install"
 endif
 
+.PHONY: clean
 clean:
 	rm -f *.o
 	rm -f *.a
