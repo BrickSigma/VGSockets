@@ -1,15 +1,9 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-
 #if defined _WIN32 || defined __CYGWIN__
     #include <winsock2.h>
 #else
     #include <arpa/inet.h>
     #include <sys/socket.h>
     #include <unistd.h>
-    #include <sys/time.h>
 #endif
 
 #include "vgs.h"
@@ -122,7 +116,7 @@ int CloseSocket(Socket fd)
         return STATUS_ERROR;
     }
 #else
-    if(close(fd)) {
+    if(close(fd) != 0) {
         ShowError("ERROR CLOSING SOCKET");
         return STATUS_ERROR;
     }
@@ -144,7 +138,7 @@ int SendData(Socket fd, const void *buf, int len)
 int RecvData(Socket fd, void *buf, int len)
 {
     int valrecv = recv(fd, (char *)buf, len, 0);
-    if (valrecv <= 0) {
+    if (valrecv < 0) {
         ShowError("ERROR RECEIVING");
     }
     return valrecv;
