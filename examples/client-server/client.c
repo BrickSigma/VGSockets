@@ -18,7 +18,8 @@ int main(void)
 
     // Create a new socket and connect it to the server and port
     printf("Starting up client...\n");
-    Socket client = StartupClient(8080, "127.0.0.1");
+    Sockaddr serveraddr = LoadAddr(8080, "127.0.0.1");
+    Socket client = StartupClient(TCP, serveraddr);
     if (client == INVALID_SOCKET) {
         return -1;
     }
@@ -34,7 +35,7 @@ int main(void)
     char buff[256];
     printf("Waiting for server...\n");
     int valread = RecvData(client, buff, 256);
-    if (valread <= 0) {
+    if (valread < 0) {
         return -1;
     }
     printf("Data received: %s. \nNumber of bytes received: %d\n", buff, valread);

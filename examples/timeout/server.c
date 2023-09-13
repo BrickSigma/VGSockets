@@ -6,7 +6,7 @@
  * 
  *  Once the two are connected the client will send some data to the server. 
  *  The server will then delay for 5 seconds as the client waits for a response 
- *  so that the timeout functionality of the client is demonstrated.
+ *  so that the timeout functionality of the client can be demonstrated.
  *
 *****************************************************************************/
 
@@ -22,7 +22,7 @@ int main(void)
     
     // Create a new socket and bind it to port 8080
     printf("Starting up server...\n");
-    Socket server = StartupServer(8080, 1);
+    Socket server = StartupServer(TCP, 8080, 1);
     if (server == INVALID_SOCKET) {
         return -1;
     }
@@ -47,7 +47,7 @@ int main(void)
     sleep(5);
     printf("Sending data...\n");
     int valsend = SendData(new_socket, "Hello client!", 14);
-    if (valsend <= 0) {
+    if (valsend < 0) {
         return -1;
     }
     printf("Successfully sent! Number of bytes sent: %d\n", valsend);

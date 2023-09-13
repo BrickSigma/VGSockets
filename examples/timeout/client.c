@@ -21,7 +21,8 @@ int main(void)
     // Create a new socket and connect it to the server and port
     printf("Starting up client...\n");
     Socket client;
-    client = StartupClient(8080, "127.0.0.1");
+    Sockaddr serveraddr = LoadAddr(8080, "127.0.0.1");
+    client = StartupClient(TCP, serveraddr);
     if (client == INVALID_SOCKET) {
         return -1;
     }
@@ -43,9 +44,8 @@ int main(void)
     } else if (valrecv == 0) {
         printf("Timed out.\n");
     } else {
-        printf("Date received: %s\n", buff);
+        printf("Data received: %s\n", buff);
     }
-    
 
     // Cleanup
     printf("Closing client and VGS...\n");
