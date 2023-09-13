@@ -17,13 +17,8 @@
 - Automatic sever/client initialization function added to compress `bind`, `listen`, `accept`, and `connect` functions into one line.
 - Cross-platform design for Windows and Linux.
 
-## Future features
-- Custom sockets designed for use in continuously looping code. This type of socket will appropriately be called a `VGSocket`.
-- Error checking system to prevent data from being malformed and offset when transmitted/recieved continuously.
-
 ## Limitations
 - Only TCP connections have been implemented as of now, but UDP will be added.
-- This library has not been tested on MacOS, so support is undetermined at the moment.
 
 ## Simple client-server example
 <b>All examples are in the `examples` folder</b>  
@@ -159,7 +154,7 @@ Use `-lvgs` to link the library, and make sure on Windows to link WinSock32 by a
 :white_check_mark: Add ~~select~~ `poll` function variant.  
 :white_check_mark: Add timeout based recv function.  
 :white_check_mark: ~~Add custom VGSocket datatype to allow Recv to timeout.~~ (Removed)  
+:white_check_mark: Add UDP support.  
 - [ ] Add global error values for user reference.  
-- [ ] Add UDP support.  
 - [ ] Add support for threads.  
 - [ ] Create documentation/cheetsheet for functions and structures.  
