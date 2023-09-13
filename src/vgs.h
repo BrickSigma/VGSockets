@@ -5,12 +5,13 @@
 extern "C" {
 #endif
 
+// SOCKET MACROS
+
 /**
  * @brief Socket descriptor
  * 
  */
 typedef unsigned long long Socket;
-
 
 // Return codes
 #undef STATUS_ERROR
@@ -20,6 +21,16 @@ typedef unsigned long long Socket;
 #define STATUS_ERROR        (-1)            // Error return code
 #define STATUS_SUCCESS      (0)             // Success return code
 #define INVALID_SOCKET      (Socket)(~0)    // Invalid socket return code
+
+enum __SocketType {
+    TCP = 1, // TCP Socket type
+    UDP = 2, // UPD Socket type
+};
+
+typedef struct __Sockaddr {
+    unsigned short port;
+    unsigned int addr;
+} Sockaddr;
 
 
 // STRUCTURES/MACROS/TYPEDEFS FOR POLL-BASED FUNCTIONS
@@ -70,14 +81,15 @@ int InitVGS(void);
 int CloseVGS(void);
 
 /**
- * @brief Create a server socket descriptor and bind it.
+ * @brief Create a server socket descriptor and binds it to the specified port.
  * 
+ * @param type Either TCP or UDP server
  * @param port Port to bind to
- * @param backlog Number of connections to listen to
+ * @param backlog Number of connections to listen to. Ignored if UDP is used.
  * 
  * @return On success, the server socket descriptor is returned. On failure, INVALID_SOCKET is returned.
  */
-Socket StartupServer(int port, int backlog);
+Socket StartupServer(int type, int port, int backlog);
 
 /**
  * @brief Accept any incoming connections from a client
@@ -89,14 +101,33 @@ Socket StartupServer(int port, int backlog);
 Socket AcceptClient(Socket fd);
 
 /**
- * @brief Create a client socket descriptor and connect it to a server
+ * @brief Create a TCP client socket descriptor and connect it to a server
  * 
- * @param port Port to connect to
- * @param address IPv4 address of server
+ * @param type Either TCP or UDP client
+ * @param address Sockaddr address of server to connect to
  * 
  * @return Socket descriptor. On failure, INVALID_SOCKET is returned.
  */
-Socket StartupClient(int port, char *address);
+Socket StartupClient(int type, Sockaddr address);
+
+/**
+ * @brief  Convert an IPv4 address to an unsigned 32 bit value. Similar to `inet_addr`.
+ * 
+ * @param  address
+ *  
+ * @retval 32 bit integer address
+ */
+unsigned int IpAddr(const char *address);
+
+/**
+ * @brief  Create an address variable for a socket
+ * 
+ * @param  port: Port number, eg port `8080`
+ * @param  address: IPv4 address
+ * 
+ * @retval A new Sockaddr variable
+ */
+Sockaddr LoadAddr(int port, const char *address);
 
 /**
  * @brief Close the socket
@@ -117,15 +148,40 @@ int CloseSocket(Socket fd);
 int SendData(Socket fd, const void *buf, int len);
 
 /**
+ * @brief  Equivilent to sendto in UNIX/Win32
+ * 
+ * @param  fd Socket file descriptor
+ * @param  buf
+ * @param  len
+ * @param  address Address of destination socket
+ * 
+ * @retval The number of bytes successfully sent. Returns STATUS_ERROR on failure.
+ */
+int SendTo(Socket fd, const void *buf, int len, Sockaddr address);
+
+/**
  * @brief Read any incoming data and write to buf
  * 
  * @param fd Socket descriptor
  * @param buf 
  * @param len 
  * 
- * @return The number of bytes successfully received.
+ * @return The number of bytes successfully received. Returns STATUS_ERROR on failure.
  */
 int RecvData(Socket fd, void *buf, int len);
+
+/**
+ * @brief  Equivilent to recvfrom in UNIX/Win32
+ * 
+ * @param  fd Socket file descriptor
+ * @param  buf
+ * @param  len
+ * @param  address Address of source socket
+ * 
+ * @retval The number of bytes successfully received. Returns STATUS_ERROR on failure.
+ */
+int RecvFrom(Socket fd, void *buf, int len, Sockaddr *address);
+
 
 
 // ============== POLL/TIMEOUT FUNCTIONS ================
@@ -141,7 +197,9 @@ int RecvData(Socket fd, void *buf, int len);
 int Poll(Pollfd *fds, unsigned long nfds, int timeout);
 
 /**
- * @brief  Adds a timeout to receiving data. Similar to using select/poll.
+ * @brief  Adds a timeout to receiving data. Similar to using select/poll. Only works with TCP sockets.
+ * 
+ * @note To use with UDP sockets, use the `TimedRecvFrom` function.
  * 
  * @param  fd: Socket descriptor
  * @param  buf: Pointer to destination buffer
@@ -150,6 +208,18 @@ int Poll(Pollfd *fds, unsigned long nfds, int timeout);
  * @retval Number of bytes received on success. Returns 0 is timed out. Returns -1 if an error occured.
  */
 int TimedRecv(Socket fd, void *buf, int len, int timeout);
+
+/**
+ * @brief  Adds a timeout to receiving data from UDP sockets.
+ * 
+ * @param  fd: Socket descriptor
+ * @param  buf: Pointer to destination buffer
+ * @param  len: Length of buffer
+ * @param address: Address of source socket
+ * @param  timeout: Amount of time to delay in milliseconds. If -1 is equal to RecvData. If 0 it will immediately timeout.
+ * @retval Number of bytes received on success. Returns 0 is timed out. Returns -1 if an error occured.
+ */
+int TimedRecvFrom(Socket fd, void *buf, int len, Sockaddr *address, int timeout);
 
 
 // ============== ERROR FUNCTIONS ================
