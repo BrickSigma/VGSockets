@@ -187,7 +187,7 @@ int RecvData(Socket fd, void *buf, int len)
 int RecvFrom(Socket fd, void *buf, int len, Sockaddr *address) {
     struct sockaddr_in src_addr;  // source socket address of incoming packets
     memset(&src_addr, 0, sizeof(src_addr));
-    socklen_t addrlen = sizeof(src_addr);
+    int addrlen = sizeof(src_addr);
 
     int valrecv = recvfrom(fd, buf, len, 0, (struct sockaddr *)&src_addr, &addrlen);
     if (valrecv < 0) {
