@@ -1,13 +1,12 @@
 CC := gcc
 CFLAGS := -Wall -Wextra
 LDFLAGS := -L../../src/ -lvgs
-EXT :=
 
 ifeq ($(OS), Windows_NT)
 	LDFLAGS += -lws2_32
-	EXT += .exe
+	EXT = .exe
 else
-	EXT += .out
+	EXT = .out
 endif
 
 build: server.c client.c

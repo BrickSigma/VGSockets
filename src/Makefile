@@ -27,8 +27,8 @@ ifeq ($(shell id -u), 0)
 ifeq ($(OS), Windows_NT)
 	@echo "Not yet implemented for Windows"
 else
-	@cp $(LIBNAME).a $(LIBPATH)
-	@cp $(HEADERNAME).h $(HEADERPATH)
+	cp $(LIBNAME).a $(LIBPATH)
+	cp $(HEADERNAME).h $(HEADERPATH)
 endif
 else
 	@echo "You need super user priviliges to install"
