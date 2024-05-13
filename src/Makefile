@@ -3,15 +3,27 @@ AR := ar
 CFLAGS := -Wall -Wextra -static
 LDFLAGS := 
 
+LIBRARY ?= STATIC
+
+ifeq (${LIBRARY}, SHARED)
+	LDFLAGS += -fPIC
+endif
+
 HEADERNAME := vgs
 LIBNAME := libvgs
+STATIC_EXT := .a
+SHARED_EXT := .so
 OUT := $(LIBNAME)
 
 HEADERPATH := /usr/local/include
 LIBPATH := /usr/local/lib
 
-$(OUT).a : core.o error.o poll.o
-	$(AR) rcs $@ $^
+$(OUT) : core.o error.o poll.o
+ifeq (${LIBRARY}, STATIC)
+	$(AR) rcs $@${STATIC_EXT} $^
+else
+	gcc -shared $(LDFLAGS) -o $@${SHARED_EXT} $^
+endif
 
 error.o : error.c
 	$(CC) $^ -c -o $@ $(CFLAGS) $(LDFLAGS)
@@ -50,4 +62,5 @@ endif
 .PHONY: clean
 clean:
 	rm -f *.o
-	rm -f *.a
+	rm -f ${LIBNAME}.a
+	rm -f ${LIBNAME}.so
