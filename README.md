@@ -23,7 +23,7 @@
 ## Simple client-server example
 <b>All examples are in the `examples` folder</b>  
 server.c:  
-```
+```C
 #include <stdio.h>
 #include "vgs.h"
 
@@ -69,7 +69,7 @@ int main(void)
 }
 ```  
 client.c:  
-```
+```C
 #include <stdio.h>
 #include "vgs.h"
 
@@ -126,7 +126,7 @@ To use in your projects, add the `vgs.h` header and `libvgs.a` files to your pro
     └── Makefile
 ```  
 And your Makefile should be like this:
-```
+```makefile
 CC := gcc
 SRC := src/
 LDFLAGS := -L./lib -lvgs
